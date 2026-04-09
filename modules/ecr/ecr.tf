@@ -17,7 +17,7 @@ resource "aws_ecr_repository_policy" "repo_policy" {
         {
             "Sid": "AllowPushPull",
             "Effect": "Allow",
-            "Principal": "*",
+            "Principal": "arn:aws:iam::${234164312932}:root",
             "Action": [
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
