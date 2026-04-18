@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_ecr_repository" "repo" {
   name                 = var.ecr_name
   image_tag_mutability = "MUTABLE"
@@ -15,9 +17,11 @@ resource "aws_ecr_repository_policy" "repo_policy" {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "AllowPushPull",
+            "Sid": "AllowAccountAccess",
             "Effect": "Allow",
-            "Principal": "arn:aws:iam::${234164312932}:root",
+            "Principal": {
+                "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+            },
             "Action": [
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",

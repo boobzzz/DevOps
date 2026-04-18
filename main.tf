@@ -5,7 +5,7 @@ provider "aws" {
 # Підключаємо S3 та DynamoDB
 module "s3_backend" {
   source      = "./modules/s3-backend"
-  bucket_name = "yb-tf-state-bucket-618384"
+  bucket_name = "yb-tf-state-bucket-618384261282"
   table_name  = "terraform-locks"
 }
 
@@ -24,4 +24,12 @@ module "ecr" {
   source       = "./modules/ecr"
   ecr_name     = "lesson-5-ecr"
   scan_on_push = true
+}
+
+# Підключаємо EKS
+module "eks" {
+  source       = "./modules/eks"
+  cluster_name = "lesson-7-cluster"
+  vpc_id       = module.vpc.vpc_id
+  subnet_ids   = module.vpc.private_subnet_ids
 }
