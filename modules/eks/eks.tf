@@ -19,6 +19,7 @@ resource "aws_iam_role_policy_attachment" "cluster_policy" {
 # Сам EKS Кластер
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
+  version  = "1.31"
   role_arn = aws_iam_role.cluster.arn
   vpc_config {
     subnet_ids = var.subnet_ids
@@ -74,4 +75,10 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.node_cni,
     aws_iam_role_policy_attachment.node_ecr,
   ]
+
+  lifecycle {
+    ignore_changes = [
+      scaling_config[0].desired_size
+    ]
+  }
 }
