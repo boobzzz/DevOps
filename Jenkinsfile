@@ -57,6 +57,8 @@ pipeline {
                 container('git') {
                     withCredentials([usernamePassword(credentialsId: 'git-creds', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         sh '''
+                            git config --global --add safe.directory '*'
+
                             git config --global user.email "jenkins@devops.local"
                             git config --global user.name "Jenkins CI"
 
