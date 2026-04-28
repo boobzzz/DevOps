@@ -1,0 +1,17 @@
+controller:
+  admin:
+    username: "admin"
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - configuration-as-code:latest
+    - pipeline-stage-view:latest
+
+persistence:
+  enabled: true
+  storageClass: "gp2"
+  size: "8Gi"
+
+agent:
+  enabled: true

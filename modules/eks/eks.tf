@@ -55,12 +55,32 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
   role       = aws_iam_role.node.name
 }
 
+resource "aws_iam_role_policy_attachment" "node_ebs_csi" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = aws_iam_role.node.name
+}
+
+resource "aws_launch_template" "eks_nodes" {
+  name_prefix   = "${var.cluster_name}-node-lt-"
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2 # <--- Ось ця магія, яка все полагодить!
+  }
+}
+
 # Група вузлів (Node Group)
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.cluster_name}-node-group"
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.subnet_ids
+
+  launch_template {
+    name    = aws_launch_template.eks_nodes.name
+    version = aws_launch_template.eks_nodes.latest_version
+  }
 
   scaling_config {
     desired_size = 2
@@ -74,6 +94,7 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.node_worker,
     aws_iam_role_policy_attachment.node_cni,
     aws_iam_role_policy_attachment.node_ecr,
+    aws_iam_role_policy_attachment.node_ebs_csi,
   ]
 
   lifecycle {

@@ -1,0 +1,7 @@
+server:
+  service:
+    type: NodePort
+dex:
+  enabled: false
+notifications:
+  enabled: false

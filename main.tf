@@ -5,7 +5,7 @@ provider "aws" {
 # Підключаємо S3 та DynamoDB
 module "s3_backend" {
   source      = "./modules/s3-backend"
-  bucket_name = "yb-tf-state-bucket-618384261282"
+  bucket_name = "yb-tf-state-bucket-2704"
   table_name  = "terraform-locks"
 }
 
@@ -22,7 +22,7 @@ module "vpc" {
 # Підключаємо ECR
 module "ecr" {
   source       = "./modules/ecr"
-  ecr_name     = "lesson-5-ecr"
+  ecr_name     = "lesson-9-ecr"
   scan_on_push = true
 }
 
@@ -32,4 +32,43 @@ module "eks" {
   cluster_name = "lesson-7-cluster"
   vpc_id       = module.vpc.vpc_id
   subnet_ids   = module.vpc.private_subnet_ids
+}
+
+module "jenkins" {
+  source = "./modules/jenkins"
+
+  depends_on = [
+    module.eks
+  ]
+}
+
+module "argo_cd" {
+  source = "./modules/argo_cd"
+
+  depends_on = [module.eks]
+}
+
+
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_name
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_name
+}
+
+# Налаштовуємо Helm провайдер
+provider "helm" {
+  kubernetes = {
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
+  }
+}
+
+# Налаштовуємо Kubernetes провайдер
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
 }
