@@ -5,15 +5,20 @@ pipeline {
             apiVersion: v1
             kind: Pod
             spec:
+              volumes:
+              - name: kaniko-secret
+                secret:
+                  secretName: kaniko-secret
               containers:
-              # Контейнер для збірки Docker-образів (Kaniko)
               - name: kaniko
                 image: gcr.io/kaniko-project/executor:debug
                 command:
                 - sleep
                 args:
                 - 9999999
-              # Контейнер для роботи з Git та оновлення Helm-чарту
+                volumeMounts:
+                - name: kaniko-secret
+                  mountPath: /kaniko/.docker
               - name: git
                 image: alpine/git
                 command:
