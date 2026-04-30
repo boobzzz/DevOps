@@ -48,6 +48,25 @@ module "argo_cd" {
   depends_on = [module.eks]
 }
 
+module "rds_database" {
+  source = "./modules/rds"
+
+  use_aurora     = false
+  identifier     = "my-django-rds-db"
+  engine         = "postgres"
+  engine_version = "14.10"
+  family         = "postgres14"
+  instance_class = "db.t3.micro"
+  multi_az       = true
+
+  vpc_id         = module.vpc.vpc_id
+  subnet_ids     = module.vpc.private_subnets
+
+  db_name        = "djangodb"
+  username       = var.db_username
+  password       = var.db_password
+}
+
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_name
