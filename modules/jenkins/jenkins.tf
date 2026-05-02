@@ -1,14 +1,3 @@
-terraform {
-  required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-    }
-    helm = {
-      source = "hashicorp/helm"
-    }
-  }
-}
-
 resource "kubernetes_namespace_v1" "jenkins" {
   metadata {
     name = var.namespace

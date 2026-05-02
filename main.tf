@@ -5,7 +5,7 @@ provider "aws" {
 # Підключаємо S3 та DynamoDB
 module "s3_backend" {
   source      = "./modules/s3-backend"
-  bucket_name = "yb-tf-state-bucket-2704"
+  bucket_name = "yb-tf-state-bucket-0105"
   table_name  = "terraform-locks"
 }
 
@@ -16,20 +16,20 @@ module "vpc" {
   public_subnets     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   private_subnets    = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   availability_zones = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
-  vpc_name           = "lesson-5-vpc"
+  vpc_name           = "final-project-vpc"
 }
 
 # Підключаємо ECR
 module "ecr" {
   source       = "./modules/ecr"
-  ecr_name     = "lesson-9-ecr"
+  ecr_name     = "final-project-ecr"
   scan_on_push = true
 }
 
 # Підключаємо EKS
 module "eks" {
   source       = "./modules/eks"
-  cluster_name = "lesson-7-cluster"
+  cluster_name = "final-project-cluster"
   vpc_id       = module.vpc.vpc_id
   subnet_ids   = module.vpc.private_subnet_ids
 }
@@ -48,6 +48,14 @@ module "argo_cd" {
   depends_on = [module.eks]
 }
 
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  depends_on = [
+    module.eks
+  ]
+}
+
 module "rds_database" {
   source = "./modules/rds"
 
@@ -60,7 +68,7 @@ module "rds_database" {
   multi_az       = true
 
   vpc_id         = module.vpc.vpc_id
-  subnet_ids     = module.vpc.private_subnets
+  subnet_ids     = module.vpc.private_subnet_ids
 
   db_name        = "djangodb"
   username       = var.db_username
