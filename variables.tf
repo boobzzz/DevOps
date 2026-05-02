@@ -9,3 +9,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "jenkins_admin_password" {
+  description = "Password for the Jenkins admin user"
+  type        = string
+  sensitive   = true
+}
